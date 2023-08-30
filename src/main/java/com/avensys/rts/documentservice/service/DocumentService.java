@@ -1,5 +1,6 @@
 package com.avensys.rts.documentservice.service;
 
+import com.avensys.rts.documentservice.payload.DocumentDeleteRequestDTO;
 import com.avensys.rts.documentservice.payload.DocumentRequestDTO;
 import com.avensys.rts.documentservice.payload.DocumentResponseDTO;
 
@@ -15,5 +16,20 @@ public interface DocumentService {
      * @return
      */
     DocumentResponseDTO createDocument(DocumentRequestDTO documentRequest);
+
+    /**
+     *  This method is used to get document by id
+     * @param documentRequest
+     * @return DocumentResponseDTO
+     */
+    DocumentResponseDTO updateDocumentById(DocumentRequestDTO documentRequest);
+
+    /**
+     * This method is used to delete document by id
+     * @param documentDeleteRequest
+     * @return void
+     */
+    void deleteDocumentEntityIdAndType(DocumentDeleteRequestDTO documentDeleteRequest);
+
 
 }

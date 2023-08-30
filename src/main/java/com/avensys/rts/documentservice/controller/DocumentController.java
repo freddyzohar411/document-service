@@ -1,6 +1,7 @@
 package com.avensys.rts.documentservice.controller;
 
 import com.avensys.rts.documentservice.constant.MessageConstants;
+import com.avensys.rts.documentservice.payload.DocumentDeleteRequestDTO;
 import com.avensys.rts.documentservice.payload.DocumentRequestDTO;
 import com.avensys.rts.documentservice.payload.DocumentResponseDTO;
 import com.avensys.rts.documentservice.service.DocumentService;
@@ -39,8 +40,33 @@ public class DocumentController {
      */
     @PostMapping(value = "/documents" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> createDocument(@Valid @ModelAttribute DocumentRequestDTO documentRequest) {
+        log.info("Document create: Controller");
         DocumentResponseDTO documentResponse = documentService.createDocument(documentRequest);
         return ResponseUtil.generateSuccessResponse(documentResponse, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
+    }
+
+    /**
+     * This method is used update document and document pdf in local
+     * @param documentRequest
+     * @return
+     */
+    @PutMapping(value = "/documents" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> updateDocument( @Valid @ModelAttribute DocumentRequestDTO documentRequest) {
+        log.info("Document update: Controller");
+        DocumentResponseDTO documentResponse = documentService.updateDocumentById(documentRequest);
+        return ResponseUtil.generateSuccessResponse(documentResponse, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
+    }
+
+    /**
+     * This method is used to delete document by entity id and type
+     * @param documentDeleteRequestDTO
+     * @return
+     */
+    @DeleteMapping("/documents")
+    public ResponseEntity<Object> deleteDocumentByEntityIdAndType(@RequestBody DocumentDeleteRequestDTO documentDeleteRequestDTO) {
+        log.info("Document delete: Controller");
+        documentService.deleteDocumentEntityIdAndType(documentDeleteRequestDTO);
+        return ResponseUtil.generateSuccessResponse(null, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
     }
 
 }

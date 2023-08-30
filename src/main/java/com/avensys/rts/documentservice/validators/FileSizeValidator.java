@@ -6,6 +6,10 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * author: Koh He Xiang
+ * Custom file size validator
+ */
 public class FileSizeValidator implements ConstraintValidator<FileSize, MultipartFile> {
     private long fileSizeLimitInBytes;
 

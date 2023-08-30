@@ -11,6 +11,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * author: Koh He Xiang
+ * This is the DTO class for a request to add a document
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

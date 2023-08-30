@@ -6,6 +6,10 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * author: Koh He Xiang
+ * Valid PDF file validator
+ */
 public class ValidPdfFileValidator implements ConstraintValidator<ValidPdfFile, MultipartFile> {
     @Override
     public void initialize(ValidPdfFile constraintAnnotation) {
