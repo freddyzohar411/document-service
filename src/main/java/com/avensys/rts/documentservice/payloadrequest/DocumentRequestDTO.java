@@ -1,14 +1,15 @@
-package com.avensys.rts.documentservice.payload;
+package com.avensys.rts.documentservice.payloadrequest;
 
 //import com.avensys.rts.documentservice.annotation.FileSize;
 import com.avensys.rts.documentservice.annotation.FileSize;
 import com.avensys.rts.documentservice.annotation.ValidPdfFile;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -19,11 +20,18 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DocumentRequestDTO {
-    @NotEmpty(message = "Type cannot be empty")
+    private Integer id;
+
     private String type;
     private String title;
     private String description;
-    private int entityId;
+
+    @NotNull
+    private Integer entityId;
+
+    @NotEmpty
+    @Length(max = 20)
+    private String entityType;
 
     @NotNull(message = "File cannot be null")
     @ValidPdfFile(message = "File must be a PDF file")

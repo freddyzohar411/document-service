@@ -1,0 +1,434 @@
+{
+	"info": {
+		"_postman_id": "0c5996d1-9f51-4d92-95f0-86e23f628003",
+		"name": "RTS Document MSV",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22065047"
+	},
+	"item": [
+		{
+			"name": "Add documents list",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "documentRequestList[0].type",
+							"value": "Invoice",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[0].title",
+							"value": "Invoice for April",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[0].description",
+							"value": "This is an invoice for the month of April",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[0].entityId",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[0].entityType",
+							"value": "accountdocument",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].type",
+							"value": "Receipt",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].title",
+							"value": "Receipt for April",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].description",
+							"value": "This is a receipt for the month of April",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].entityId",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].entityType",
+							"value": "accountdocument",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].file",
+							"type": "file",
+							"src": "/C:/Users/Xiang/OneDrive - Avensys Consulting Pte Ltd/Desktop/Get_Started_With_Smallpdf.pdf"
+						},
+						{
+							"key": "documentRequestList[0].file",
+							"type": "file",
+							"src": "/C:/Users/Xiang/OneDrive - Avensys Consulting Pte Ltd/Desktop/Get_Started_With_Smallpdf - Copy.pdf"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8500/documentsList",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8500",
+					"path": [
+						"documentsList"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update documents list",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "documentRequestList[0].id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[0].type",
+							"value": "xls",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[0].title",
+							"value": "Invoice for April",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[0].description",
+							"value": "This is an invoice for the month of April",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[0].entityId",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[0].entityType",
+							"value": "accountdocument",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].type",
+							"value": "pdf",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].title",
+							"value": "Receipt for April",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].description",
+							"value": "This is a receipt for the month of April",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].entityId",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].entityType",
+							"value": "accountdocument",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[2].type",
+							"value": "docs",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[2].title",
+							"value": "purchaseorder",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[2].description",
+							"value": "This is a new doc",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[2].entityId",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[2].entityType",
+							"value": "accountdocument",
+							"type": "text"
+						},
+						{
+							"key": "documentRequestList[1].file",
+							"type": "file",
+							"src": "/C:/Users/Xiang/OneDrive - Avensys Consulting Pte Ltd/Desktop/Get_Started_With_Smallpdf - Copy.pdf"
+						},
+						{
+							"key": "documentRequestList[0].file",
+							"type": "file",
+							"src": "/C:/Users/Xiang/OneDrive - Avensys Consulting Pte Ltd/Desktop/Get_Started_With_Smallpdf.pdf"
+						},
+						{
+							"key": "documentRequestList[2].file",
+							"type": "file",
+							"src": "/C:/Users/Xiang/OneDrive - Avensys Consulting Pte Ltd/Desktop/Get_Started_With_Smallpdf - Copy.pdf"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8500/documentsList/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8500",
+					"path": [
+						"documentsList",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add account_document document",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "title",
+							"value": "Billing",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "All about billing",
+							"type": "text"
+						},
+						{
+							"key": "entityId",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "entityType",
+							"value": "account_document",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Xiang/Downloads/SG-Cyber-Safe_Leaders-Infographics-(1).pdf"
+						},
+						{
+							"key": "type",
+							"value": "docx",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8500/documents",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8500",
+					"path": [
+						"documents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Document by Id",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "title",
+							"value": "Billing",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "All about billing",
+							"type": "text"
+						},
+						{
+							"key": "entityId",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "entityType",
+							"value": "account_document",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Xiang/Downloads/SG-Cyber-Safe_Leaders-Infographics-(1).pdf"
+						},
+						{
+							"key": "type",
+							"value": "docx",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8500/documents/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8500",
+					"path": [
+						"documents",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add account_instruction document",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "title",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "description",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "entityId",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "entityType",
+							"value": "account_instruction",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Xiang/Downloads/SG-Cyber-Safe_Leaders-Infographics-(1).pdf"
+						},
+						{
+							"key": "type",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8500/documents",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8500",
+					"path": [
+						"documents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete document by id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8500/documents/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8500",
+					"path": [
+						"documents",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get document by entity type and entity Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8500/documents?entityId=1&entityType=account_document",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8500",
+					"path": [
+						"documents"
+					],
+					"query": [
+						{
+							"key": "entityId",
+							"value": "1"
+						},
+						{
+							"key": "entityType",
+							"value": "account_document"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

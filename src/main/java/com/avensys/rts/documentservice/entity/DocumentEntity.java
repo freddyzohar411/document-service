@@ -18,7 +18,7 @@ public class DocumentEntity {
 
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(name = "type", length = 10 )
     private String type;
@@ -26,10 +26,16 @@ public class DocumentEntity {
     @Column(name = "title", length = 50 )
     private String title;
 
+    @Column(name = "document_name", length = 50 )
+    private String documentName;
+
     @Column(name = "description", length = 250 )
     private String description;
 
     @Column(name = "entity_id")
-    private int entityId;
+    private Integer entityId;
+
+    @Column(name = "entity_type", length = 50 )
+    private String entityType;
 
 }

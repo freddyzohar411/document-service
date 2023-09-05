@@ -1,4 +1,4 @@
-package com.avensys.rts.documentservice.payload;
+package com.avensys.rts.documentservice.payloadrequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
