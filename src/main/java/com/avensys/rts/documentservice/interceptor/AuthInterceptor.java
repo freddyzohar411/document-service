@@ -12,14 +12,17 @@ import org.springframework.web.servlet.HandlerInterceptor;
  */
 public class AuthInterceptor implements HandlerInterceptor {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(AuthInterceptor.class);
+    private final Logger log = LoggerFactory.getLogger(AuthInterceptor.class);
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        LOGGER.info("Auth Pre-handling");
+        log.info("Auth Pre-handling");
 
         //Implement JWT Auth token validation here and check with keycloak server if token is valid
+        // Get token from header
+        String authorizationHeader = request.getHeader("Authorization");
 
+        log.info("Authorization Header: {}", authorizationHeader);
 
 
         return true; // Continue the request processing chain
