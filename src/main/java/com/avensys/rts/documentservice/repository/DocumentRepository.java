@@ -4,6 +4,7 @@ import com.avensys.rts.documentservice.entity.DocumentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.print.Doc;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -12,6 +13,7 @@ import java.util.Optional;
  */
 public interface DocumentRepository extends JpaRepository<DocumentEntity, Integer> {
     Optional<DocumentEntity> findByTypeAndEntityId(String name, int entityId);
-    Optional<DocumentEntity> findByEntityTypeAndEntityId(String entityType, int entityId);
+    List<DocumentEntity> findByEntityTypeAndEntityId(String entityType, int entityId);
 
+    Optional<DocumentEntity> findOneByEntityTypeAndEntityId(String entityType, int entityId);
 }

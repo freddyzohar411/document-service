@@ -26,7 +26,8 @@ public interface DocumentService {
      */
     List<DocumentResponseDTO> createDocumentList(List<DocumentRequestDTO> documentRequestList);
 
-    List<DocumentResponseDTO> updateDocumentList(List<DocumentRequestDTO> documentRequestList);
+//    List<DocumentResponseDTO> updateDocumentList(List<DocumentRequestDTO> documentRequestList);
+//
     /**
      *  This method is used to get document Entity Id and Entity Type
      * @param documentRequest
@@ -56,7 +57,7 @@ public interface DocumentService {
      * @param entityId
      * @return
      */
-    DocumentResponseDTO getDocumentByEntityTypeAndEntityId(String entityType, Integer entityId);
+    List<DocumentResponseDTO> getDocumentByEntityTypeAndEntityId(String entityType, Integer entityId);
 
     /**
      * This method is used to delete document by id

@@ -37,12 +37,18 @@ public class DocumentServiceImpl implements DocumentService {
     /**
      * This method is used to save document and create a document
      * Account creation call this method
+     *
      * @param documentRequest
      * @return DocumentResponseDTO
      */
     @Override
     @Transactional
     public DocumentResponseDTO createDocument(DocumentRequestDTO documentRequest) {
+        // Check if file exist
+        if (documentRequest.getFile() == null) {
+            throw new EntityNotFoundException("File cannot be null");
+        }
+
         DocumentEntity document = toDocumentEntity(documentRequest);
         DocumentEntity savedDocument = documentRepository.save(document);
 
@@ -61,6 +67,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     /**
      * This method is used to save a list of documents
+     *
      * @param documentRequestList
      * @return
      */
@@ -87,61 +94,68 @@ public class DocumentServiceImpl implements DocumentService {
         return documentResponseDTOList;
     }
 
+//    /**
+//     * This method is used to update a list of documents
+//     * @param documentRequestList
+//     * @return
+//     */
+//    @Override
+//    @Transactional
+//    public List<DocumentResponseDTO> updateDocumentList(List<DocumentRequestDTO> documentRequestList) {
+//        List<DocumentResponseDTO> documentResponseDTOList = new ArrayList<>();
+//        documentRequestList.forEach(documentRequest -> {
+//            // Check if document id exist else create a new document
+//            if (documentRequest.getId() == null) {
+//                DocumentEntity document = toDocumentEntity(documentRequest);
+//                DocumentEntity savedDocument = documentRepository.save(document);
+//
+//                // Log the current working directory
+//                log.info("Current working directory: " + Paths.get("").toAbsolutePath().toString());
+//
+//                // Create the directory if it doesn't exist
+//                createDirectoryIfNotExist(UPLOAD_PATH);
+//
+//                // Save pdf locally
+//                savePDFLocal(savedDocument, documentRequest);
+//                documentResponseDTOList.add(toDocumentResponseDTO(savedDocument));
+//                log.info("Document created and saved : Service");
+//            } else {
+//                DocumentEntity documentFound = documentRepository.findByEntityTypeAndEntityId(documentRequest.getEntityType(), documentRequest.getEntityId()).orElseThrow(
+//                        () -> new EntityNotFoundException("Document with entity type %s and entity id %s not found".formatted(documentRequest.getEntityType(), documentRequest.getEntityId()))
+//                );
+//
+//                // Delete pdf locally if it exist
+//                deletePDFLocal(documentFound);
+//
+//                // Update document
+//                updateDocumentEntity(documentFound, documentRequest);
+//
+//                // Update and save PDF locally
+//                savePDFLocal(documentFound, documentRequest);
+//                documentResponseDTOList.add(toDocumentResponseDTO(documentFound));
+//                DocumentEntity updatedDocument = documentRepository.save(documentFound);
+//                log.info("Document updated : Service");
+//            }
+//        });
+//        return documentResponseDTOList;
+//    }
+
+//    /**
+//     * This method is used to update document by id
+//     * @param documentRequest
+//     * @return DocumentResponseDTO
+//     */
+
     /**
-     * This method is used to update a list of documents
-     * @param documentRequestList
+     * This method is used update document by Entity Id and Entity Type
+     *
+     * @param documentRequest
      * @return
      */
     @Override
     @Transactional
-    public List<DocumentResponseDTO> updateDocumentList(List<DocumentRequestDTO> documentRequestList) {
-        List<DocumentResponseDTO> documentResponseDTOList = new ArrayList<>();
-        documentRequestList.forEach(documentRequest -> {
-            // Check if document id exist else create a new document
-            if (documentRequest.getId() == null) {
-                DocumentEntity document = toDocumentEntity(documentRequest);
-                DocumentEntity savedDocument = documentRepository.save(document);
-
-                // Log the current working directory
-                log.info("Current working directory: " + Paths.get("").toAbsolutePath().toString());
-
-                // Create the directory if it doesn't exist
-                createDirectoryIfNotExist(UPLOAD_PATH);
-
-                // Save pdf locally
-                savePDFLocal(savedDocument, documentRequest);
-                documentResponseDTOList.add(toDocumentResponseDTO(savedDocument));
-                log.info("Document created and saved : Service");
-            } else {
-                DocumentEntity documentFound = documentRepository.findByEntityTypeAndEntityId(documentRequest.getEntityType(), documentRequest.getEntityId()).orElseThrow(
-                        () -> new EntityNotFoundException("Document with entity type %s and entity id %s not found".formatted(documentRequest.getEntityType(), documentRequest.getEntityId()))
-                );
-
-                // Delete pdf locally if it exist
-                deletePDFLocal(documentFound);
-
-                // Update document
-                updateDocumentEntity(documentFound, documentRequest);
-
-                // Update and save PDF locally
-                savePDFLocal(documentFound, documentRequest);
-                documentResponseDTOList.add(toDocumentResponseDTO(documentFound));
-                DocumentEntity updatedDocument = documentRepository.save(documentFound);
-                log.info("Document updated : Service");
-            }
-        });
-        return documentResponseDTOList;
-    }
-
-    /**
-     * This method is used to update document by id
-     * @param documentRequest
-     * @return DocumentResponseDTO
-     */
-    @Override
-    @Transactional
     public DocumentResponseDTO updateDocumentByEntityIdAndEntityType(DocumentRequestDTO documentRequest) {
-        DocumentEntity documentFound = documentRepository.findByEntityTypeAndEntityId(documentRequest.getEntityType(), documentRequest.getEntityId()).orElseThrow(
+        DocumentEntity documentFound = documentRepository.findOneByEntityTypeAndEntityId(documentRequest.getEntityType(), documentRequest.getEntityId()).orElseThrow(
                 () -> new EntityNotFoundException("Document with type %s and entity id %s not found".formatted(documentRequest.getType(), documentRequest.getEntityId()))
         );
 
@@ -161,6 +175,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     /**
      * This method is used to update document by id
+     *
      * @param documentId
      * @param documentRequest
      * @return
@@ -171,15 +186,17 @@ public class DocumentServiceImpl implements DocumentService {
                 () -> new EntityNotFoundException("Document with id %s not found".formatted(documentId))
         );
 
-        // Delete pdf locally if it exist
-        deletePDFLocal(documentFound);
+        // Update file only if file in request is not null
+        if (documentRequest.getFile() != null) {
 
+            // Delete pdf locally if it exist
+            deletePDFLocal(documentFound);
+
+            // Update and save PDF locally
+            savePDFLocal(documentFound, documentRequest);
+        }
         // Update document
         updateDocumentEntity(documentFound, documentRequest);
-
-        // Update and save PDF locally
-        savePDFLocal(documentFound, documentRequest);
-
         DocumentEntity updatedDocument = documentRepository.save(documentFound);
         log.info("Document updated : Service");
         return toDocumentResponseDTO(updatedDocument);
@@ -187,6 +204,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     /**
      * This method is used to delete document by entity id and type
+     *
      * @param documentDeleteRequest
      */
     @Override
@@ -203,20 +221,20 @@ public class DocumentServiceImpl implements DocumentService {
 
     /**
      * This method is used to get document by entity type and entity id
+     *
      * @param entityType
      * @param entityId
-     * @return
+     * @return List<DocumentResponseDTO>
      */
     @Override
-    public DocumentResponseDTO getDocumentByEntityTypeAndEntityId(String entityType, Integer entityId) {
-        DocumentEntity documentFound = documentRepository.findByEntityTypeAndEntityId(entityType, entityId).orElseThrow(
-                () -> new EntityNotFoundException("Document with entity type %s and entity id %s not found".formatted(entityType, entityId))
-        );
-        return toDocumentResponseDTO(documentFound);
+    public List<DocumentResponseDTO> getDocumentByEntityTypeAndEntityId(String entityType, Integer entityId) {
+        List<DocumentEntity> documentsFound = documentRepository.findByEntityTypeAndEntityId(entityType, entityId);
+        return documentsFound.stream().map(this::toDocumentResponseDTO).toList();
     }
 
     /**
      * This method is used to delete document by id
+     *
      * @param documentId
      */
     @Override
@@ -248,6 +266,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     /**
      * Internal method used to save pdf file locally
+     *
      * @param documentEntity
      * @param documentRequest
      */
@@ -263,6 +282,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     /**
      * Internal method used to delete pdf file locally
+     *
      * @param documentFound
      */
     private void deletePDFLocal(DocumentEntity documentFound) {
@@ -294,6 +314,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     /**
      * Internal method used to convert DocumentEntity to DocumentResponseDTO
+     *
      * @param documentEntity
      * @return
      */
@@ -311,6 +332,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     /**
      * Internal method used to update DocumentEntity
+     *
      * @param documentEntity
      * @param documentRequest
      */
@@ -318,7 +340,9 @@ public class DocumentServiceImpl implements DocumentService {
         documentEntity.setType(documentRequest.getType());
         documentEntity.setTitle(documentRequest.getTitle());
         documentEntity.setDescription(documentRequest.getDescription());
-        documentEntity.setDocumentName(documentRequest.getFile().getOriginalFilename());
+        if (documentRequest.getFile() != null) {
+            documentEntity.setDocumentName(documentRequest.getFile().getOriginalFilename());
+        }
         documentEntity.setEntityId(documentRequest.getEntityId());
         documentEntity.setEntityType(documentRequest.getEntityType());
     }

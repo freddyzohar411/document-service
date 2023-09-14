@@ -2,6 +2,7 @@ package com.avensys.rts.documentservice.payloadrequest;
 
 //import com.avensys.rts.documentservice.annotation.FileSize;
 import com.avensys.rts.documentservice.annotation.FileSize;
+import com.avensys.rts.documentservice.annotation.ValidFileFormat;
 import com.avensys.rts.documentservice.annotation.ValidPdfFile;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -21,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 public class DocumentRequestDTO {
     private Integer id;
-
     private String type;
     private String title;
     private String description;
@@ -33,8 +33,9 @@ public class DocumentRequestDTO {
     @Length(max = 20)
     private String entityType;
 
-    @NotNull(message = "File cannot be null")
-    @ValidPdfFile(message = "File must be a PDF file")
-    @FileSize(maxSize = 1, message = "File size must be less than 1MB")
+//    @NotNull(message = "File cannot be null")
+//    @ValidPdfFile(message = "File must be a PDF file")
+    @ValidFileFormat(format = {"pdf", "doc", "docx"}, message = "File must be a PDF, doc or docx file")
+    @FileSize(maxSize = 2, message = "File size must be less than 2MB")
     private MultipartFile file;
 }

@@ -66,13 +66,13 @@ public class DocumentController {
      * @param documentRequestList
      * @return
      */
-    @PostMapping(value = "/documentsList/update" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Object> updateDocumentList(@Valid @ModelAttribute DocumentListRequestDTO documentRequestList) {
-        System.out.println("documentRequestList: " + documentRequestList.getDocumentRequestList());
-        log.info("Document create: Controller");
-        List<DocumentResponseDTO> documentResponseList = documentService.updateDocumentList(documentRequestList.getDocumentRequestList());
-        return ResponseUtil.generateSuccessResponse(documentResponseList, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
-    }
+//    @PostMapping(value = "/documentsList/update" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<Object> updateDocumentList(@Valid @ModelAttribute DocumentListRequestDTO documentRequestList) {
+//        System.out.println("documentRequestList: " + documentRequestList.getDocumentRequestList());
+//        log.info("Document create: Controller");
+//        List<DocumentResponseDTO> documentResponseList = documentService.updateDocumentList(documentRequestList.getDocumentRequestList());
+//        return ResponseUtil.generateSuccessResponse(documentResponseList, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
+//    }
 
     /**
      * This method is used update document by Entity Id and Entity Type
@@ -90,7 +90,7 @@ public class DocumentController {
      * @return
      */
     @PutMapping(value = "/documents/{documentId}" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Object> updateDocumentById(@PathVariable Integer documentId, @Valid @ModelAttribute DocumentRequestDTO documentRequest) {
+    public ResponseEntity<Object> updateDocumentById(@PathVariable Integer documentId,  @ModelAttribute DocumentRequestDTO documentRequest) {
         log.info("Document update: Controller");
         DocumentResponseDTO documentResponse = documentService.updateDocumentById(documentId, documentRequest);
         return ResponseUtil.generateSuccessResponse(documentResponse, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
@@ -129,7 +129,7 @@ public class DocumentController {
     @GetMapping("/documents")
     public ResponseEntity<Object> getDocumentByEntityTypeAndId(@RequestParam String entityType, @RequestParam int entityId) {
         log.info("Document get: Controller");
-        DocumentResponseDTO documentResponseDTO = documentService.getDocumentByEntityTypeAndEntityId(entityType, entityId);
+        List<DocumentResponseDTO> documentResponseDTO = documentService.getDocumentByEntityTypeAndEntityId(entityType, entityId);
         return ResponseUtil.generateSuccessResponse(documentResponseDTO, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
     }
 
