@@ -4,6 +4,7 @@ import com.avensys.rts.documentservice.interceptor.AuditInterceptor;
 import com.avensys.rts.documentservice.interceptor.AuthInterceptor;
 import feign.form.spring.SpringFormEncoder;
 import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.MessageSource;
@@ -21,6 +22,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
+    @Autowired
+    private AuthInterceptor authInterceptor;
+
     /**
      * This method is used to register the interceptors.
      * @param registry
@@ -28,7 +32,7 @@ public class AppConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new AuditInterceptor());
-        registry.addInterceptor(new AuthInterceptor());
+        registry.addInterceptor(authInterceptor);
     }
 
     /**
