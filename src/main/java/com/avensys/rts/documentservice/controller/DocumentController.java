@@ -4,6 +4,7 @@ import com.avensys.rts.documentservice.constant.MessageConstants;
 import com.avensys.rts.documentservice.payloadrequest.DocumentDeleteRequestDTO;
 import com.avensys.rts.documentservice.payloadrequest.DocumentListRequestDTO;
 import com.avensys.rts.documentservice.payloadrequest.DocumentRequestDTO;
+import com.avensys.rts.documentservice.payloadresponse.DocumentNewResponseDTO;
 import com.avensys.rts.documentservice.payloadresponse.DocumentResponseDTO;
 import com.avensys.rts.documentservice.service.DocumentService;
 import com.avensys.rts.documentservice.util.ResponseUtil;
@@ -42,7 +43,7 @@ public class DocumentController {
      * @return HttpResponse with documentResponseDTO
      */
     @PostMapping(value = "/documents" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Object> createDocument(@Valid @ModelAttribute DocumentRequestDTO documentRequest) {
+    public ResponseEntity<Object> createDocument(@ModelAttribute DocumentRequestDTO documentRequest) {
         log.info("Document create: Controller");
         DocumentResponseDTO documentResponse = documentService.createDocument(documentRequest);
         return ResponseUtil.generateSuccessResponse(documentResponse, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
@@ -84,6 +85,7 @@ public class DocumentController {
         DocumentResponseDTO documentResponse = documentService.updateDocumentByEntityIdAndEntityType(documentRequest);
         return ResponseUtil.generateSuccessResponse(documentResponse, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
     }
+
 
     /**
      * This method is used update document by document id
@@ -131,6 +133,20 @@ public class DocumentController {
         log.info("Document get: Controller");
         List<DocumentResponseDTO> documentResponseDTO = documentService.getDocumentByEntityTypeAndEntityId(entityType, entityId);
         return ResponseUtil.generateSuccessResponse(documentResponseDTO, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
+    }
+
+    @GetMapping("/documents/entity/{entityType}/{entityId}")
+    public ResponseEntity<Object> getDocumentNewByEntityTypeAndId(@PathVariable String entityType, @PathVariable int entityId) {
+        log.info("Document get: Controller");
+        List<DocumentNewResponseDTO> documentResponseDTO = documentService.getDocumentNewByEntityTypeAndEntityId(entityType, entityId);
+        return ResponseUtil.generateSuccessResponse(documentResponseDTO, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
+    }
+
+    @DeleteMapping("/documents/entity/{entityType}/{entityId}")
+    public ResponseEntity<Object> deleteDocumentsByEntityTypeAndEntityId(@PathVariable String entityType, @PathVariable Integer entityId) {
+        log.info("Delete documents by entity type and entity id : Controller ");
+        documentService.deleteDocumentsByEntityTypeAndEntityId(entityType, entityId);
+        return ResponseUtil.generateSuccessResponse(null, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
     }
 
 }

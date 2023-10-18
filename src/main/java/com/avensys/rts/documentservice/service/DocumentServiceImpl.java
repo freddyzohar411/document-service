@@ -1,14 +1,24 @@
 package com.avensys.rts.documentservice.service;
 
+import com.avensys.rts.documentservice.APIClient.FormSubmissionAPIClient;
+import com.avensys.rts.documentservice.APIClient.UserAPIClient;
+import com.avensys.rts.documentservice.customresponse.HttpResponse;
 import com.avensys.rts.documentservice.entity.DocumentEntity;
 import com.avensys.rts.documentservice.payloadrequest.DocumentDeleteRequestDTO;
 import com.avensys.rts.documentservice.payloadrequest.DocumentRequestDTO;
+import com.avensys.rts.documentservice.payloadrequest.FormSubmissionsRequestDTO;
+import com.avensys.rts.documentservice.payloadresponse.DocumentNewResponseDTO;
 import com.avensys.rts.documentservice.payloadresponse.DocumentResponseDTO;
+import com.avensys.rts.documentservice.payloadresponse.FormSubmissionsResponseDTO;
+import com.avensys.rts.documentservice.payloadresponse.UserResponseDTO;
 import com.avensys.rts.documentservice.repository.DocumentRepository;
+import com.avensys.rts.documentservice.util.JwtUtil;
+import com.avensys.rts.documentservice.util.MappingUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -17,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Koh He Xiang
@@ -25,6 +36,11 @@ import java.util.List;
 @Service
 public class DocumentServiceImpl implements DocumentService {
 
+    @Autowired
+    private UserAPIClient userAPIClient;
+
+    @Autowired
+    private FormSubmissionAPIClient formSubmissionAPIClient;
     private final Logger log = LoggerFactory.getLogger(DocumentServiceImpl.class);
     private final DocumentRepository documentRepository;
 
@@ -61,6 +77,14 @@ public class DocumentServiceImpl implements DocumentService {
         // Save pdf locally
         savePDFLocal(savedDocument, documentRequest);
 
+        // Let send form data to form submission
+        if (documentRequest.getFormId() != null) {
+            FormSubmissionsRequestDTO formSubmissionsRequestDTO = documentRequestDTOTFormSubmissionRequestDTO(savedDocument, documentRequest);
+            HttpResponse formSubmissionResponse = formSubmissionAPIClient.addFormSubmission(formSubmissionsRequestDTO);
+            FormSubmissionsResponseDTO formSubmissionData = MappingUtil.mapClientBodyToClass(formSubmissionResponse.getData(), FormSubmissionsResponseDTO.class);
+            savedDocument.setFormSubmissionId(formSubmissionData.getId());
+        }
+
         log.info("Document created and saved : Service");
         return toDocumentResponseDTO(savedDocument);
     }
@@ -94,58 +118,6 @@ public class DocumentServiceImpl implements DocumentService {
         return documentResponseDTOList;
     }
 
-//    /**
-//     * This method is used to update a list of documents
-//     * @param documentRequestList
-//     * @return
-//     */
-//    @Override
-//    @Transactional
-//    public List<DocumentResponseDTO> updateDocumentList(List<DocumentRequestDTO> documentRequestList) {
-//        List<DocumentResponseDTO> documentResponseDTOList = new ArrayList<>();
-//        documentRequestList.forEach(documentRequest -> {
-//            // Check if document id exist else create a new document
-//            if (documentRequest.getId() == null) {
-//                DocumentEntity document = toDocumentEntity(documentRequest);
-//                DocumentEntity savedDocument = documentRepository.save(document);
-//
-//                // Log the current working directory
-//                log.info("Current working directory: " + Paths.get("").toAbsolutePath().toString());
-//
-//                // Create the directory if it doesn't exist
-//                createDirectoryIfNotExist(UPLOAD_PATH);
-//
-//                // Save pdf locally
-//                savePDFLocal(savedDocument, documentRequest);
-//                documentResponseDTOList.add(toDocumentResponseDTO(savedDocument));
-//                log.info("Document created and saved : Service");
-//            } else {
-//                DocumentEntity documentFound = documentRepository.findByEntityTypeAndEntityId(documentRequest.getEntityType(), documentRequest.getEntityId()).orElseThrow(
-//                        () -> new EntityNotFoundException("Document with entity type %s and entity id %s not found".formatted(documentRequest.getEntityType(), documentRequest.getEntityId()))
-//                );
-//
-//                // Delete pdf locally if it exist
-//                deletePDFLocal(documentFound);
-//
-//                // Update document
-//                updateDocumentEntity(documentFound, documentRequest);
-//
-//                // Update and save PDF locally
-//                savePDFLocal(documentFound, documentRequest);
-//                documentResponseDTOList.add(toDocumentResponseDTO(documentFound));
-//                DocumentEntity updatedDocument = documentRepository.save(documentFound);
-//                log.info("Document updated : Service");
-//            }
-//        });
-//        return documentResponseDTOList;
-//    }
-
-//    /**
-//     * This method is used to update document by id
-//     * @param documentRequest
-//     * @return DocumentResponseDTO
-//     */
-
     /**
      * This method is used update document by Entity Id and Entity Type
      *
@@ -167,6 +139,14 @@ public class DocumentServiceImpl implements DocumentService {
 
         // Update and save PDF locally
         savePDFLocal(documentFound, documentRequest);
+
+        // Update document
+        if (documentFound.getFormSubmissionId() != null) {
+            FormSubmissionsRequestDTO formSubmissionsRequestDTO = documentRequestDTOTFormSubmissionRequestDTO(documentFound, documentRequest);
+            HttpResponse formSubmissionResponse = formSubmissionAPIClient.updateFormSubmission(documentFound.getFormSubmissionId(), formSubmissionsRequestDTO);
+            FormSubmissionsResponseDTO formSubmissionData = MappingUtil.mapClientBodyToClass(formSubmissionResponse.getData(), FormSubmissionsResponseDTO.class);
+            documentFound.setFormSubmissionId(formSubmissionData.getId());
+        }
 
         DocumentEntity updatedDocument = documentRepository.save(documentFound);
         log.info("Document updated : Service");
@@ -197,6 +177,13 @@ public class DocumentServiceImpl implements DocumentService {
         }
         // Update document
         updateDocumentEntity(documentFound, documentRequest);
+
+        // Update formsubmission
+        FormSubmissionsRequestDTO formSubmissionsRequestDTO = documentRequestDTOTFormSubmissionRequestDTO(documentFound,documentRequest);
+        HttpResponse formSubmissionResponse = formSubmissionAPIClient.updateFormSubmission(documentFound.getFormSubmissionId(), formSubmissionsRequestDTO);
+        FormSubmissionsResponseDTO formSubmissionData = MappingUtil.mapClientBodyToClass(formSubmissionResponse.getData(), FormSubmissionsResponseDTO.class);
+        documentFound.setFormSubmissionId(formSubmissionData.getId());
+
         DocumentEntity updatedDocument = documentRepository.save(documentFound);
         log.info("Document updated : Service");
         return toDocumentResponseDTO(updatedDocument);
@@ -214,6 +201,12 @@ public class DocumentServiceImpl implements DocumentService {
         );
 
         deletePDFLocal(documentFound);
+
+        // Delete form submission from form microservice
+        if (documentFound.getFormSubmissionId() != null) {
+            HttpResponse formSubmissionResponse = formSubmissionAPIClient.deleteFormSubmission(documentFound.getFormSubmissionId());
+        }
+
         documentRepository.delete(documentFound);
 
         log.info("Document deleted : Service");
@@ -233,20 +226,90 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
+     * This method is used to get document by entity type and entity id (Dynamic form)
+     * @param entityType
+     * @param entityId
+     * @return
+     */
+    @Override
+    public List<DocumentNewResponseDTO> getDocumentNewByEntityTypeAndEntityId(String entityType, Integer entityId) {
+        List<DocumentEntity> documentsFound = documentRepository.findByEntityTypeAndEntityId(entityType, entityId);
+        return documentsFound.stream().map(this::documentEntityToDocumentNewResponseDTO).toList();
+    }
+
+
+
+    /**
      * This method is used to delete document by id
      *
      * @param documentId
      */
     @Override
+    @Transactional
     public void deleteDocumentById(Integer documentId) {
         DocumentEntity documentFound = documentRepository.findById(documentId).orElseThrow(
                 () -> new EntityNotFoundException("Document with id %s not found".formatted(documentId))
         );
 
         deletePDFLocal(documentFound);
+
+        //Delete form submission from form microservice
+        if (documentFound.getFormSubmissionId() != null) {
+            HttpResponse formSubmissionResponse = formSubmissionAPIClient.deleteFormSubmission(documentFound.getFormSubmissionId());
+        }
+
         documentRepository.delete(documentFound);
 
         log.info("Document deleted : Service");
+    }
+
+    @Override
+    @Transactional
+    public void deleteDocumentsByEntityTypeAndEntityId(String entityType, Integer entityId) {
+        List<DocumentEntity> documentEntityList = documentRepository.findByEntityTypeAndEntityId(entityType, entityId);
+        if (!documentEntityList.isEmpty()){
+            documentEntityList.forEach(
+                    documentEntity -> {
+                        deletePDFLocal(documentEntity);
+                        // Delete form submission from form microservice
+                        if (documentEntity.getFormSubmissionId() != null) {
+                            HttpResponse formSubmissionResponse = formSubmissionAPIClient.deleteFormSubmission(documentEntity.getFormSubmissionId());
+                        }
+                        documentRepository.delete(documentEntity);
+                    }
+            );
+        }
+    }
+
+    private DocumentNewResponseDTO documentEntityToDocumentNewResponseDTO(DocumentEntity documentEntity) {
+        DocumentNewResponseDTO documentNewResponseDTO = new DocumentNewResponseDTO();
+        documentNewResponseDTO.setId(documentEntity.getId());
+        documentNewResponseDTO.setType(documentEntity.getType());
+        documentNewResponseDTO.setTitle(documentEntity.getTitle());
+        documentNewResponseDTO.setDescription(documentEntity.getDescription());
+        documentNewResponseDTO.setFormId(documentEntity.getFormId());
+        documentNewResponseDTO.setFormSubmissionId(documentEntity.getFormSubmissionId());
+
+        // Get from data from form submission
+        if (documentEntity.getFormSubmissionId() != null) {
+            HttpResponse formSubmissionResponse = formSubmissionAPIClient.getFormSubmission(documentEntity.getFormSubmissionId());
+            FormSubmissionsResponseDTO formSubmissionData = MappingUtil.mapClientBodyToClass(formSubmissionResponse.getData(), FormSubmissionsResponseDTO.class);
+            documentNewResponseDTO.setSubmissionData(MappingUtil.convertJsonNodeToJSONString(formSubmissionData.getSubmissionData()));
+        }
+        return documentNewResponseDTO;
+    }
+
+    /**
+     * Internal Method to formsubmissionRequest
+     */
+    private FormSubmissionsRequestDTO documentRequestDTOTFormSubmissionRequestDTO(DocumentEntity documentEntity,DocumentRequestDTO documentRequest) {
+        FormSubmissionsRequestDTO formSubmissionsRequestDTO = new FormSubmissionsRequestDTO();
+        formSubmissionsRequestDTO.setUserId(getUserId());
+        formSubmissionsRequestDTO.setSubmissionData(MappingUtil.convertJSONStringToJsonNode(documentRequest.getFormData()));
+        formSubmissionsRequestDTO.setFormId(documentRequest.getFormId());
+        formSubmissionsRequestDTO.setEntityId(documentEntity.getId());
+        formSubmissionsRequestDTO.setEntityType(documentRequest.getEntityType());
+        return formSubmissionsRequestDTO;
     }
 
     /**
@@ -309,6 +372,9 @@ public class DocumentServiceImpl implements DocumentService {
         documentEntity.setDescription(documentRequest.getDescription());
         documentEntity.setEntityId(documentRequest.getEntityId());
         documentEntity.setEntityType(documentRequest.getEntityType());
+        if (documentRequest.getFormId() != null) {
+            documentEntity.setFormId(documentRequest.getFormId());
+        }
         return documentEntity;
     }
 
@@ -345,5 +411,12 @@ public class DocumentServiceImpl implements DocumentService {
         }
         documentEntity.setEntityId(documentRequest.getEntityId());
         documentEntity.setEntityType(documentRequest.getEntityType());
+    }
+
+    private Integer getUserId() {
+        String email = JwtUtil.getEmailFromContext();
+        HttpResponse userResponse = userAPIClient.getUserByEmail(email);
+        UserResponseDTO userData = MappingUtil.mapClientBodyToClass(userResponse.getData(), UserResponseDTO.class);
+        return userData.getId();
     }
 }

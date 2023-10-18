@@ -2,6 +2,7 @@ package com.avensys.rts.documentservice.service;
 
 import com.avensys.rts.documentservice.payloadrequest.DocumentDeleteRequestDTO;
 import com.avensys.rts.documentservice.payloadrequest.DocumentRequestDTO;
+import com.avensys.rts.documentservice.payloadresponse.DocumentNewResponseDTO;
 import com.avensys.rts.documentservice.payloadresponse.DocumentResponseDTO;
 
 import java.util.List;
@@ -59,11 +60,13 @@ public interface DocumentService {
      */
     List<DocumentResponseDTO> getDocumentByEntityTypeAndEntityId(String entityType, Integer entityId);
 
+    List<DocumentNewResponseDTO> getDocumentNewByEntityTypeAndEntityId(String entityType, Integer entityId);
     /**
      * This method is used to delete document by id
      * @param documentId
      */
     void deleteDocumentById(Integer documentId);
 
+    void deleteDocumentsByEntityTypeAndEntityId(String entityType, Integer entityId);
 
 }

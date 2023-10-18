@@ -35,7 +35,10 @@ public class DocumentRequestDTO {
 
 //    @NotNull(message = "File cannot be null")
 //    @ValidPdfFile(message = "File must be a PDF file")
-    @ValidFileFormat(format = {"pdf", "doc", "docx"}, message = "File must be a PDF, doc or docx file")
-    @FileSize(maxSize = 2, message = "File size must be less than 2MB")
+//    @ValidFileFormat(format = {"pdf", "doc", "docx"}, message = "File must be a PDF, doc or docx file")
+//    @FileSize(maxSize = 2, message = "File size must be less than 2MB")
     private MultipartFile file;
+
+    private Integer formId;
+    private String formData;
 }

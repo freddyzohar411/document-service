@@ -14,6 +14,5 @@ import java.util.Optional;
 public interface DocumentRepository extends JpaRepository<DocumentEntity, Integer> {
     Optional<DocumentEntity> findByTypeAndEntityId(String name, int entityId);
     List<DocumentEntity> findByEntityTypeAndEntityId(String entityType, int entityId);
-
     Optional<DocumentEntity> findOneByEntityTypeAndEntityId(String entityType, int entityId);
 }
