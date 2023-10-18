@@ -67,5 +67,6 @@ public interface DocumentService {
      */
     void deleteDocumentById(Integer documentId);
 
+    void deleteDocumentsByEntityTypeAndEntityId(String entityType, Integer entityId);
 
 }

@@ -142,4 +142,11 @@ public class DocumentController {
         return ResponseUtil.generateSuccessResponse(documentResponseDTO, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
     }
 
+    @DeleteMapping("/documents/entity/{entityType}/{entityId}")
+    public ResponseEntity<Object> deleteDocumentsByEntityTypeAndEntityId(@PathVariable String entityType, @PathVariable Integer entityId) {
+        log.info("Delete documents by entity type and entity id : Controller ");
+        documentService.deleteDocumentsByEntityTypeAndEntityId(entityType, entityId);
+        return ResponseUtil.generateSuccessResponse(null, HttpStatus.OK, messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
+    }
+
 }
