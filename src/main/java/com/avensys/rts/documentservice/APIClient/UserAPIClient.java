@@ -12,7 +12,7 @@ public interface UserAPIClient {
 
     @GetMapping("/{id}")
     HttpResponse getUserById(@PathVariable("id") Integer id);
-    
+
     @GetMapping("/email/{email}")
     HttpResponse getUserByEmail(@PathVariable("email") String email);
 
