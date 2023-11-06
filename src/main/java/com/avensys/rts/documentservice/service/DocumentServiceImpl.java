@@ -77,7 +77,7 @@ public class DocumentServiceImpl implements DocumentService {
         // Save pdf locally
         savePDFLocal(savedDocument, documentRequest);
 
-        // Let send form data to form submission
+        // Let send form data to form submission microservice
         if (documentRequest.getFormId() != null) {
             FormSubmissionsRequestDTO formSubmissionsRequestDTO = documentRequestDTOTFormSubmissionRequestDTO(savedDocument, documentRequest);
             HttpResponse formSubmissionResponse = formSubmissionAPIClient.addFormSubmission(formSubmissionsRequestDTO);
