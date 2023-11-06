@@ -38,9 +38,11 @@ public class DocumentEntity {
     @Column(name = "entity_type", length = 50 )
     private String entityType;
 
+    // Form entity
     @Column(name = "form_id", length = 50 )
     private Integer formId;
 
+    // Form submission entity
     @Column(name = "form_submission_id" )
     private Integer formSubmissionId;
 
