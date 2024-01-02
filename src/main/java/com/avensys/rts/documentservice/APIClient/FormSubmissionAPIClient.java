@@ -11,16 +11,16 @@ import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "form-service", url = "${api.form-submission.url}", configuration = JwtTokenInterceptor.class)
 public interface FormSubmissionAPIClient {
-    @PostMapping("/form-submissions")
+    @PostMapping("")
     HttpResponse addFormSubmission(@RequestBody FormSubmissionsRequestDTO formSubmissionsRequestDTO);
 
-    @GetMapping("/form-submissions/{formSubmissionId}")
+    @GetMapping("/{formSubmissionId}")
     HttpResponse getFormSubmission(@PathVariable int formSubmissionId);
 
-    @PutMapping("/form-submissions/{formSubmissionId}")
+    @PutMapping("/{formSubmissionId}")
     HttpResponse updateFormSubmission(@PathVariable int formSubmissionId, @RequestBody FormSubmissionsRequestDTO formSubmissionsRequestDTO);
 
-    @DeleteMapping("/form-submissions/{formSubmissionId}")
+    @DeleteMapping("/{formSubmissionId}")
     HttpResponse deleteFormSubmission(@PathVariable int formSubmissionId);
 
 }

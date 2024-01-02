@@ -10,17 +10,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.avensys.rts.documentservice.constant.MessageConstants;
 import com.avensys.rts.documentservice.payloadrequest.DocumentDeleteRequestDTO;
@@ -40,6 +30,7 @@ import jakarta.validation.Valid;
  */
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequestMapping("/api/documents")
 public class DocumentController {
 
 	private final Logger log = LoggerFactory.getLogger(DocumentController.class);
@@ -60,7 +51,7 @@ public class DocumentController {
 	 * @param documentRequest
 	 * @return HttpResponse with documentResponseDTO
 	 */
-	@PostMapping(value = "/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Object> createDocument(@ModelAttribute DocumentRequestDTO documentRequest,
 			@RequestHeader(name = "Authorization") String token) {
 		log.info("Document create: Controller");
@@ -108,7 +99,7 @@ public class DocumentController {
 	 * 
 	 * @return
 	 */
-	@PutMapping(value = "/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PutMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Object> updateDocument(@Valid @ModelAttribute DocumentRequestDTO documentRequest,
 			@RequestHeader(name = "Authorization") String token) {
 		log.info("Document update: Controller");
@@ -124,7 +115,7 @@ public class DocumentController {
 	 * 
 	 * @return
 	 */
-	@PutMapping(value = "/documents/{documentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PutMapping(value = "/{documentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Object> updateDocumentById(@PathVariable Integer documentId,
 			@ModelAttribute DocumentRequestDTO documentRequest) {
 		log.info("Document update: Controller");
@@ -139,7 +130,7 @@ public class DocumentController {
 	 * @param documentDeleteRequestDTO
 	 * @return
 	 */
-	@DeleteMapping("/documents")
+	@DeleteMapping("")
 	public ResponseEntity<Object> deleteDocumentByEntityIdAndType(
 			@RequestBody DocumentDeleteRequestDTO documentDeleteRequestDTO) {
 		log.info("Document delete: Controller");
@@ -154,7 +145,7 @@ public class DocumentController {
 	 * @param documentId
 	 * @return
 	 */
-	@DeleteMapping("/documents/{documentId}")
+	@DeleteMapping("/{documentId}")
 	public ResponseEntity<Object> deleteDocumentById(@PathVariable Integer documentId) {
 		log.info("Document delete: Controller");
 		documentService.deleteDocumentById(documentId);
@@ -169,7 +160,7 @@ public class DocumentController {
 	 * @param entityId
 	 * @return
 	 */
-	@GetMapping("/documents")
+	@GetMapping("")
 	public ResponseEntity<Object> getDocumentByEntityTypeAndId(@RequestParam String entityType,
 			@RequestParam int entityId) {
 		log.info("Document get: Controller");
@@ -179,7 +170,7 @@ public class DocumentController {
 				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
 	}
 
-	@GetMapping("/documents/entity/{entityType}/{entityId}")
+	@GetMapping("/entity/{entityType}/{entityId}")
 	public ResponseEntity<Object> getDocumentNewByEntityTypeAndId(@PathVariable String entityType,
 			@PathVariable int entityId) {
 		log.info("Document get: Controller");
@@ -189,7 +180,7 @@ public class DocumentController {
 				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
 	}
 
-	@GetMapping("/documents/entity/user/{entityType}/{entityId}")
+	@GetMapping("/entity/user/{entityType}/{entityId}")
 	public ResponseEntity<Object> getDocumentNewByUserEntityTypeAndId(@PathVariable String entityType,
 			@PathVariable int entityId, @RequestHeader(name = "Authorization") String token) {
 		log.info("Document get: Controller");
@@ -200,7 +191,7 @@ public class DocumentController {
 				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
 	}
 
-	@DeleteMapping("/documents/entity/{entityType}/{entityId}")
+	@DeleteMapping("/entity/{entityType}/{entityId}")
 	public ResponseEntity<Object> deleteDocumentsByEntityTypeAndEntityId(@PathVariable String entityType,
 			@PathVariable Integer entityId) {
 		log.info("Delete documents by entity type and entity id : Controller ");
