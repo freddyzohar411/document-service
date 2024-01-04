@@ -51,7 +51,7 @@ public class DocumentController {
 	 * @param documentRequest
 	 * @return HttpResponse with documentResponseDTO
 	 */
-	@PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Object> createDocument(@ModelAttribute DocumentRequestDTO documentRequest,
 			@RequestHeader(name = "Authorization") String token) {
 		log.info("Document create: Controller");
