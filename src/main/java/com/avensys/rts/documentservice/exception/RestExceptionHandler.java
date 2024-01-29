@@ -1,7 +1,8 @@
 package com.avensys.rts.documentservice.exception;
 
-import com.avensys.rts.documentservice.util.ResponseUtil;
-import jakarta.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -17,77 +18,84 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.avensys.rts.documentservice.util.ResponseUtil;
+
+import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.persistence.EntityNotFoundException;
 
 /**
- * @author Koh He Xiang
- * This class is used to handle all the exceptions thrown by the application.
- * It is annotated with @ControllerAdvice to indicate that it is a global exception handler.
+ * @author Koh He Xiang This class is used to handle all the exceptions thrown
+ *         by the application. It is annotated with @ControllerAdvice to
+ *         indicate that it is a global exception handler.
  */
 @ControllerAdvice
-public class RestExceptionHandler extends ResponseEntityExceptionHandler  {
+public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    // This handles the incoming JSON validation errors
-    @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
-                                                                  HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        String error = "Incorrect JSON request format";
-        return ResponseUtil.generateErrorResponse(HttpStatus.BAD_REQUEST, error);
-    }
+	// This handles the incoming JSON validation errors
+	@Override
+	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+		String error = "Incorrect JSON request format";
+		return ResponseUtil.generateErrorResponse(HttpStatus.BAD_REQUEST, error);
+	}
 
-    /**
-     * This method is used to handle the validation errors thrown by the @Valid annotation.
-     * @param ex
-     * @param headers
-     * @param status
-     * @param request
-     * @return
-     */
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        BindingResult bindingResult = ex.getBindingResult();
-        List<String> errors = new ArrayList<>();
+	@ExceptionHandler(value = ExpiredJwtException.class)
+	public ResponseEntity<Object> expiredJWTException(ExpiredJwtException ex) {
+		return ResponseUtil.generateErrorResponse(HttpStatus.FORBIDDEN, ex.getLocalizedMessage());
+	}
 
-        for (FieldError fieldError : bindingResult.getFieldErrors()) {
-            errors.add(fieldError.getDefaultMessage());
-        }
+	/**
+	 * This method is used to handle the validation errors thrown by the @Valid
+	 * annotation.
+	 * 
+	 * @param ex
+	 * @param headers
+	 * @param status
+	 * @param request
+	 * @return
+	 */
+	@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+		BindingResult bindingResult = ex.getBindingResult();
+		List<String> errors = new ArrayList<>();
 
-        for (ObjectError globalError : bindingResult.getGlobalErrors()) {
-            errors.add(globalError.getDefaultMessage());
-        }
+		for (FieldError fieldError : bindingResult.getFieldErrors()) {
+			errors.add(fieldError.getDefaultMessage());
+		}
 
-        return ResponseUtil.generateErrorResponse(HttpStatus.BAD_REQUEST, errors.toString());
-    }
+		for (ObjectError globalError : bindingResult.getGlobalErrors()) {
+			errors.add(globalError.getDefaultMessage());
+		}
 
-    /**
-     * This method is used to handle the missing request parameters.
-     * @param ex
-     * @param headers
-     * @param status
-     * @param request
-     * @return
-     */
-    @Override
-    protected ResponseEntity<Object> handleMissingServletRequestParameter(
-            MissingServletRequestParameterException ex,
-            HttpHeaders headers,
-            HttpStatusCode status,
-            WebRequest request) {
+		return ResponseUtil.generateErrorResponse(HttpStatus.BAD_REQUEST, errors.toString());
+	}
 
-        String error = ex.getParameterName() + " parameter is missing";
-        return ResponseUtil.generateErrorResponse(HttpStatus.BAD_REQUEST, error);
-    }
+	/**
+	 * This method is used to handle the missing request parameters.
+	 * 
+	 * @param ex
+	 * @param headers
+	 * @param status
+	 * @param request
+	 * @return
+	 */
+	@Override
+	protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
+			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
+		String error = ex.getParameterName() + " parameter is missing";
+		return ResponseUtil.generateErrorResponse(HttpStatus.BAD_REQUEST, error);
+	}
 
-    @ExceptionHandler(value = RuntimeException.class)
-    public ResponseEntity<Object> exception(RuntimeException ex) {
-        return ResponseUtil.generateErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
-    }
+	@ExceptionHandler(value = RuntimeException.class)
+	public ResponseEntity<Object> exception(RuntimeException ex) {
+		return ResponseUtil.generateErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+	}
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    protected ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex) {
-        return ResponseUtil.generateErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
+	@ExceptionHandler(EntityNotFoundException.class)
+	protected ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex) {
+		return ResponseUtil.generateErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+	}
 
 }
