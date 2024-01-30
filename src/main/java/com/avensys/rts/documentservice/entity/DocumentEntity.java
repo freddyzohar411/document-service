@@ -28,13 +28,13 @@ public class DocumentEntity extends BaseEntity {
 	@Column(name = "type", length = 10)
 	private String type;
 
-	@Column(name = "title", length = 50)
+	@Column(name = "title", length = 200)
 	private String title;
 
-	@Column(name = "document_name", length = 50)
+	@Column(name = "document_name", length = 200)
 	private String documentName;
 
-	@Column(name = "description", length = 250)
+	@Column(name = "description", length = 1000)
 	private String description;
 
 	@Column(name = "entity_id")
