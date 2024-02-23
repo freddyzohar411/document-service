@@ -1,17 +1,18 @@
 package com.avensys.rts.documentservice.payloadrequest;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
- * author: Koh He Xiang
- * This is the DTO class for a request to delete a document
+ * author: Koh He Xiang This is the DTO class for a request to delete a document
  */
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class DocumentDeleteRequestDTO {
-    private String type;
-    private int entityId;
+	private String type;
+	private int entityId;
 }
