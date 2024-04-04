@@ -320,8 +320,9 @@ public class DocumentServiceImpl implements DocumentService {
 	@Override
 	public DocumentDownloadResponseDTO downloadDocumentByEntity(String entityType, Integer entityId) {
 		List<DocumentEntity> documentsFound = documentRepository.findByEntityTypeAndEntityId(entityType, entityId);
+		System.out.println("Documents found: " + documentsFound);
 		if (!documentsFound.isEmpty()) {
-			DocumentEntity documentEntity = documentsFound.get(0);
+			DocumentEntity documentEntity = documentsFound.get(documentsFound.size() - 1);
 			return documentEntityToDocumentDownloadResponseDTO(documentEntity);
 		}
 		return null;
