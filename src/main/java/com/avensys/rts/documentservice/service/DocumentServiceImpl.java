@@ -11,6 +11,7 @@ import com.avensys.rts.documentservice.payloadresponse.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.avensys.rts.documentservice.APIClient.FormSubmissionAPIClient;
@@ -42,7 +43,10 @@ public class DocumentServiceImpl implements DocumentService {
 	private final Logger log = LoggerFactory.getLogger(DocumentServiceImpl.class);
 	private final DocumentRepository documentRepository;
 
-	private final String UPLOAD_PATH = "document-service/src/main/resources/uploaded/";
+	@Value("${document.upload.path}")
+	private String UPLOAD_PATH;
+
+//	private final String UPLOAD_PATH = "document-service/src/main/resources/uploaded/";
 
 	public DocumentServiceImpl(DocumentRepository documentRepository) {
 		this.documentRepository = documentRepository;
