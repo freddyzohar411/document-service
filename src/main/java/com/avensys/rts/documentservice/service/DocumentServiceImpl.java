@@ -7,9 +7,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.avensys.rts.documentservice.payloadresponse.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.avensys.rts.documentservice.APIClient.FormSubmissionAPIClient;
@@ -19,10 +21,6 @@ import com.avensys.rts.documentservice.entity.DocumentEntity;
 import com.avensys.rts.documentservice.payloadrequest.DocumentDeleteRequestDTO;
 import com.avensys.rts.documentservice.payloadrequest.DocumentRequestDTO;
 import com.avensys.rts.documentservice.payloadrequest.FormSubmissionsRequestDTO;
-import com.avensys.rts.documentservice.payloadresponse.DocumentNewResponseDTO;
-import com.avensys.rts.documentservice.payloadresponse.DocumentResponseDTO;
-import com.avensys.rts.documentservice.payloadresponse.FormSubmissionsResponseDTO;
-import com.avensys.rts.documentservice.payloadresponse.UserResponseDTO;
 import com.avensys.rts.documentservice.repository.DocumentRepository;
 import com.avensys.rts.documentservice.util.JwtUtil;
 import com.avensys.rts.documentservice.util.MappingUtil;
@@ -45,7 +43,10 @@ public class DocumentServiceImpl implements DocumentService {
 	private final Logger log = LoggerFactory.getLogger(DocumentServiceImpl.class);
 	private final DocumentRepository documentRepository;
 
-	private final String UPLOAD_PATH = "document-service/src/main/resources/uploaded/";
+	@Value("${document.upload.path}")
+	private String UPLOAD_PATH;
+
+//	private final String UPLOAD_PATH = "document-service/src/main/resources/uploaded/";
 
 	public DocumentServiceImpl(DocumentRepository documentRepository) {
 		this.documentRepository = documentRepository;
@@ -291,6 +292,65 @@ public class DocumentServiceImpl implements DocumentService {
 				documentRepository.delete(documentEntity);
 			});
 		}
+	}
+
+	@Override
+	public DocumentDownloadResponseDTO downloadDocumentById(Integer documentId) {
+		DocumentEntity documentFound = documentRepository.findById(documentId)
+				.orElseThrow(() -> new EntityNotFoundException("Document with id %s not found".formatted(documentId)));
+//		// Get the file
+//		Path path = Paths.get(UPLOAD_PATH + documentFound.getId() + ".pdf");
+//		if (Files.exists(path)) {
+//			//Convert the file to byte array
+//			byte[] fileContent = null;
+//			try {
+//				fileContent = Files.readAllBytes(path);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			// Cnvert to encodeBase64String
+//			String encodedString = java.util.Base64.getEncoder().encodeToString(fileContent);
+//			DocumentDownloadResponseDTO documentDownloadResponseDTO = new DocumentDownloadResponseDTO();
+//			documentDownloadResponseDTO.setEncodedFile(encodedString);
+//			documentDownloadResponseDTO.setFileName(documentFound.getDocumentName());
+//			return documentDownloadResponseDTO;
+//		}
+//		return null;
+
+		return documentEntityToDocumentDownloadResponseDTO(documentFound);
+
+	}
+
+	@Override
+	public DocumentDownloadResponseDTO downloadDocumentByEntity(String entityType, Integer entityId) {
+		List<DocumentEntity> documentsFound = documentRepository.findByEntityTypeAndEntityId(entityType, entityId);
+		System.out.println("Documents found: " + documentsFound);
+		if (!documentsFound.isEmpty()) {
+			DocumentEntity documentEntity = documentsFound.get(documentsFound.size() - 1);
+			return documentEntityToDocumentDownloadResponseDTO(documentEntity);
+		}
+		return null;
+	}
+
+	private DocumentDownloadResponseDTO documentEntityToDocumentDownloadResponseDTO(DocumentEntity documentEntity) {
+		// Get the file
+		Path path = Paths.get(UPLOAD_PATH + documentEntity.getId() + ".pdf");
+		if (Files.exists(path)) {
+			// Convert the file to byte array
+			byte[] fileContent = null;
+			try {
+				fileContent = Files.readAllBytes(path);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			// Cnvert to encodeBase64String
+			String encodedString = java.util.Base64.getEncoder().encodeToString(fileContent);
+			DocumentDownloadResponseDTO documentDownloadResponseDTO = new DocumentDownloadResponseDTO();
+			documentDownloadResponseDTO.setEncodedFile(encodedString);
+			documentDownloadResponseDTO.setFileName(documentEntity.getDocumentName());
+			return documentDownloadResponseDTO;
+		}
+		return null;
 	}
 
 	private DocumentNewResponseDTO documentEntityToDocumentNewResponseDTO(DocumentEntity documentEntity) {

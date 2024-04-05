@@ -2,6 +2,7 @@ package com.avensys.rts.documentservice.controller;
 
 import java.util.List;
 
+import com.avensys.rts.documentservice.payloadresponse.DocumentDownloadResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -199,5 +200,25 @@ public class DocumentController {
 		return ResponseUtil.generateSuccessResponse(null, HttpStatus.OK,
 				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
 	}
+
+	// Download file by entity type and entity id
+	@GetMapping("/download/entity/{entityType}/{entityId}")
+	public ResponseEntity<Object> downloadDocumentByEntityTypeAndEntityId(@PathVariable String entityType, @PathVariable Integer entityId) {
+		log.info("Document download: Controller");
+		DocumentDownloadResponseDTO documentDownloadResponseDTO = documentService.downloadDocumentByEntity(entityType, entityId);
+		return ResponseUtil.generateSuccessResponse(documentDownloadResponseDTO, HttpStatus.OK,
+				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
+	}
+
+	// Download file by id
+	@GetMapping("/download/{documentId}")
+	public ResponseEntity<Object> downloadDocumentById(@PathVariable Integer documentId) {
+		log.info("Document download: Controller");
+		DocumentDownloadResponseDTO documentDownloadResponseDTO = documentService.downloadDocumentById(documentId);
+		return ResponseUtil.generateSuccessResponse(documentDownloadResponseDTO, HttpStatus.OK,
+				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
+	}
+
+
 
 }

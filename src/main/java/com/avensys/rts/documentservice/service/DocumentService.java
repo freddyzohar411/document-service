@@ -2,6 +2,7 @@ package com.avensys.rts.documentservice.service;
 
 import com.avensys.rts.documentservice.payloadrequest.DocumentDeleteRequestDTO;
 import com.avensys.rts.documentservice.payloadrequest.DocumentRequestDTO;
+import com.avensys.rts.documentservice.payloadresponse.DocumentDownloadResponseDTO;
 import com.avensys.rts.documentservice.payloadresponse.DocumentNewResponseDTO;
 import com.avensys.rts.documentservice.payloadresponse.DocumentResponseDTO;
 
@@ -77,5 +78,10 @@ public interface DocumentService {
 	void deleteDocumentById(Integer documentId);
 
 	void deleteDocumentsByEntityTypeAndEntityId(String entityType, Integer entityId);
+
+	DocumentDownloadResponseDTO downloadDocumentById(Integer documentId);
+
+	DocumentDownloadResponseDTO downloadDocumentByEntity(String entityType, Integer entityId);
+
 
 }
