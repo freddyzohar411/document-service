@@ -25,6 +25,7 @@ import com.avensys.rts.documentservice.util.MappingUtil;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author Koh He Xiang This class is used to implement the methods for the
@@ -398,6 +399,71 @@ public class DocumentServiceImpl implements DocumentService {
 //		}
 //	}
 
+//	@Override
+//	public void updateDocumentByKeysAndEntityTypeAndEntityId(UpdateDocumentListKeyDTO updateDocumentListKeyDTO) {
+//		// Retrieve the existing documents from the database
+//		List<DocumentEntity> documentEntityList = documentRepository.findByEntityTypeAndEntityId(
+//				updateDocumentListKeyDTO.getEntityType(), updateDocumentListKeyDTO.getEntityId());
+//
+//		// If no existing documents are found, initialize the list
+//		if (documentEntityList == null) {
+//			documentEntityList = new ArrayList<>();
+//		}
+//
+//		// If the request array is empty, delete all existing documents
+//		if (updateDocumentListKeyDTO.getDocumentKeyRequestDTO() == null || updateDocumentListKeyDTO.getDocumentKeyRequestDTO().length == 0) {
+//			for (DocumentEntity documentEntity : documentEntityList) {
+//				deletePDFLocal(documentEntity);
+//				if (documentEntity.getFormSubmissionId() != null) {
+//					formSubmissionAPIClient.deleteFormSubmission(documentEntity.getFormSubmissionId());
+//				}
+//				documentRepository.delete(documentEntity);
+//			}
+//			return;
+//		}
+//
+//		// Create a set of document keys from the request
+//		DocumentKeyRequestDTO[] requestDocumentKeyDTOs = updateDocumentListKeyDTO.getDocumentKeyRequestDTO();
+//		Set<String> requestDocumentKeys = Arrays.stream(requestDocumentKeyDTOs)
+//				.map(DocumentKeyRequestDTO::getDocumentKey)
+//				.collect(Collectors.toSet());
+//
+//		// Process existing documents: delete or update
+//		Set<String> processedKeys = new HashSet<>();
+//		for (DocumentEntity documentEntity : documentEntityList) {
+//			boolean found = false;
+//			for (DocumentKeyRequestDTO requestDocumentKeyDTO : requestDocumentKeyDTOs) {
+//				if (documentEntity.getDocumentKey().equals(requestDocumentKeyDTO.getDocumentKey())) {
+//					found = true;
+//					processedKeys.add(requestDocumentKeyDTO.getDocumentKey());
+//					documentEntity.setUpdatedBy(getUserId().longValue());
+//					documentRepository.save(documentEntity);
+//					break;
+//				}
+//			}
+//			if (!found) {
+//				deletePDFLocal(documentEntity);
+//				if (documentEntity.getFormSubmissionId() != null) {
+//					formSubmissionAPIClient.deleteFormSubmission(documentEntity.getFormSubmissionId());
+//				}
+//				documentRepository.delete(documentEntity);
+//			}
+//		}
+//
+//		// Create new documents for request keys not already processed
+//		for (DocumentKeyRequestDTO requestDocumentKeyDTO : requestDocumentKeyDTOs) {
+//			if (!processedKeys.contains(requestDocumentKeyDTO.getDocumentKey())) {
+//				DocumentEntity newDocumentEntity = new DocumentEntity();
+//				newDocumentEntity.setEntityType(updateDocumentListKeyDTO.getEntityType());
+//				newDocumentEntity.setEntityId(updateDocumentListKeyDTO.getEntityId());
+//				newDocumentEntity.setDocumentKey(requestDocumentKeyDTO.getDocumentKey());
+//				newDocumentEntity.setCreatedBy(getUserId().longValue());
+//				newDocumentEntity.setUpdatedBy(getUserId().longValue());
+//				documentRepository.save(newDocumentEntity);
+//			}
+//		}
+//	}
+
 	@Override
 	public void updateDocumentByKeysAndEntityTypeAndEntityId(UpdateDocumentListKeyDTO updateDocumentListKeyDTO) {
 		// Retrieve the existing documents from the database
@@ -410,7 +476,7 @@ public class DocumentServiceImpl implements DocumentService {
 		}
 
 		// If the request array is empty, delete all existing documents
-		if (updateDocumentListKeyDTO.getDocumentKeyRequestDTO() == null || updateDocumentListKeyDTO.getDocumentKeyRequestDTO().length == 0) {
+		if (updateDocumentListKeyDTO.getFileKeys() == null || updateDocumentListKeyDTO.getFileKeys().length == 0) {
 			for (DocumentEntity documentEntity : documentEntityList) {
 				deletePDFLocal(documentEntity);
 				if (documentEntity.getFormSubmissionId() != null) {
@@ -421,21 +487,45 @@ public class DocumentServiceImpl implements DocumentService {
 			return;
 		}
 
-		// Create a set of document keys from the request
-		DocumentKeyRequestDTO[] requestDocumentKeyDTOs = updateDocumentListKeyDTO.getDocumentKeyRequestDTO();
-		Set<String> requestDocumentKeys = Arrays.stream(requestDocumentKeyDTOs)
-				.map(DocumentKeyRequestDTO::getDocumentKey)
-				.collect(Collectors.toSet());
+		// Create a set of file keys from the request
+		String[] requestFileKeys = updateDocumentListKeyDTO.getFileKeys();
+		Set<String> requestFileKeySet = new HashSet<>(Arrays.asList(requestFileKeys));
 
 		// Process existing documents: delete or update
 		Set<String> processedKeys = new HashSet<>();
 		for (DocumentEntity documentEntity : documentEntityList) {
 			boolean found = false;
-			for (DocumentKeyRequestDTO requestDocumentKeyDTO : requestDocumentKeyDTOs) {
-				if (documentEntity.getDocumentKey().equals(requestDocumentKeyDTO.getDocumentKey())) {
+			for (String requestFileKey : requestFileKeys) {
+				if (documentEntity.getDocumentKey().equals(requestFileKey)) {
 					found = true;
-					processedKeys.add(requestDocumentKeyDTO.getDocumentKey());
+					processedKeys.add(requestFileKey);
 					documentEntity.setUpdatedBy(getUserId().longValue());
+					// If there is a file, update the document
+					if (updateDocumentListKeyDTO.getFiles() != null) {
+						MultipartFile file = null;
+						for (int i = 0; i < requestFileKeys.length; i++) {
+							if (requestFileKeys[i].equals(requestFileKey)) {
+								file = updateDocumentListKeyDTO.getFiles()[i];
+								break;
+							}
+						}
+						// Check if file is not a mockmultipart file
+						if (file != null) {
+							if (file.getOriginalFilename().startsWith("mock_")) {
+								continue;
+							}
+							// Update the file using existing methods (update)
+							DocumentRequestDTO documentRequest = new DocumentRequestDTO();
+							documentRequest.setEntityId(updateDocumentListKeyDTO.getEntityId());
+							documentRequest.setEntityType(updateDocumentListKeyDTO.getEntityType());
+							documentRequest.setDocumentKey(requestFileKey);
+							documentRequest.setFile(file);
+							documentRequest.setCreatedBy(getUserId().longValue());
+							documentRequest.setUpdatedBy(getUserId().longValue());
+							updateDocumentEntity(documentEntity, documentRequest);
+							savePDFLocal(documentEntity, documentRequest);
+						}
+					}
 					documentRepository.save(documentEntity);
 					break;
 				}
@@ -449,16 +539,28 @@ public class DocumentServiceImpl implements DocumentService {
 			}
 		}
 
-		// Create new documents for request keys not already processed
-		for (DocumentKeyRequestDTO requestDocumentKeyDTO : requestDocumentKeyDTOs) {
-			if (!processedKeys.contains(requestDocumentKeyDTO.getDocumentKey())) {
-				DocumentEntity newDocumentEntity = new DocumentEntity();
-				newDocumentEntity.setEntityType(updateDocumentListKeyDTO.getEntityType());
-				newDocumentEntity.setEntityId(updateDocumentListKeyDTO.getEntityId());
-				newDocumentEntity.setDocumentKey(requestDocumentKeyDTO.getDocumentKey());
-				newDocumentEntity.setCreatedBy(getUserId().longValue());
-				newDocumentEntity.setUpdatedBy(getUserId().longValue());
-				documentRepository.save(newDocumentEntity);
+		// Handle the files and create new documents for request keys not already
+		// processed
+		MultipartFile[] files = updateDocumentListKeyDTO.getFiles();
+		if (files != null) {
+			for (int i = 0; i < requestFileKeys.length; i++) {
+				String requestFileKey = requestFileKeys[i];
+				if (!processedKeys.contains(requestFileKey)) {
+					if (files[i] != null) {
+
+						MultipartFile file = files[i];
+						DocumentRequestDTO documentRequest = new DocumentRequestDTO();
+						documentRequest.setEntityType(updateDocumentListKeyDTO.getEntityType());
+						documentRequest.setEntityId(updateDocumentListKeyDTO.getEntityId());
+						documentRequest.setDocumentKey(requestFileKey);
+						documentRequest.setFile(file);
+						documentRequest.setCreatedBy(getUserId().longValue());
+						documentRequest.setUpdatedBy(getUserId().longValue());
+
+						DocumentResponseDTO documentResponse = createDocument(documentRequest);
+						processedKeys.add(requestFileKey);
+					}
+				}
 			}
 		}
 	}

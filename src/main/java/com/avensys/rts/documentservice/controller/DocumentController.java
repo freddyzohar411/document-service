@@ -224,7 +224,8 @@ public class DocumentController {
 	@PostMapping("/update/list-with-keys")
 	public ResponseEntity<Object> updateDocumentListWithKeys(@ModelAttribute UpdateDocumentListKeyDTO updateDocumentListKeyDTO) {
 		log.info("Document update!!!: Controller");
-//		documentService.updateDocumentByKeysAndEntityTypeAndEntityId(updateDocumentListKeyDTO);
+		System.out.println("HERE!");
+		documentService.updateDocumentByKeysAndEntityTypeAndEntityId(updateDocumentListKeyDTO);
 		return ResponseUtil.generateSuccessResponse(null, HttpStatus.OK,
 				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
 	}
