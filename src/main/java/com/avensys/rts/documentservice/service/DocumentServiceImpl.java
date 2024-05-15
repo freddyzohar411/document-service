@@ -331,6 +331,15 @@ public class DocumentServiceImpl implements DocumentService {
 		return null;
 	}
 
+	@Override
+	public DocumentDownloadResponseDTO downloadDocumentByEntityAndKey(String entityType, Integer entityId, String documentKey) {
+		DocumentEntity documentEntity = documentRepository.findOneByEntityTypeAndEntityIdAndDocumentKey(entityType, entityId, documentKey).orElseThrow(
+				() -> new EntityNotFoundException("Document with type %s, entity id %s and file key %s not found"
+						.formatted(entityType, entityId, documentKey)));
+		System.out.println("Document entity: " + documentEntity.getId());
+		return documentEntityToDocumentDownloadResponseDTO(documentEntity);
+	}
+
 //	@Override
 //	public void updateDocumentByKeysAndEntityTypeAndEntityId(UpdateDocumentListIKeyDTO updateDocumentListIKeyDTO) {
 //		List<DocumentEntity> documentEntityList = documentRepository.findByEntityTypeAndEntityId(
@@ -511,19 +520,21 @@ public class DocumentServiceImpl implements DocumentService {
 						}
 						// Check if file is not a mockmultipart file
 						if (file != null) {
-							if (file.getOriginalFilename().startsWith("mock_")) {
-								continue;
+							// Check if file name is not equals to mock_emptyFile
+							System.out.println("File name: " + file.getOriginalFilename());
+							if (!file.getOriginalFilename().isEmpty()) {
+								System.out.println("File is not mock");
+								// Update the file using existing methods (update)
+								DocumentRequestDTO documentRequest = new DocumentRequestDTO();
+								documentRequest.setEntityId(updateDocumentListKeyDTO.getEntityId());
+								documentRequest.setEntityType(updateDocumentListKeyDTO.getEntityType());
+								documentRequest.setDocumentKey(requestFileKey);
+								documentRequest.setFile(file);
+								documentRequest.setCreatedBy(getUserId().longValue());
+								documentRequest.setUpdatedBy(getUserId().longValue());
+								updateDocumentEntity(documentEntity, documentRequest);
+								savePDFLocal(documentEntity, documentRequest);
 							}
-							// Update the file using existing methods (update)
-							DocumentRequestDTO documentRequest = new DocumentRequestDTO();
-							documentRequest.setEntityId(updateDocumentListKeyDTO.getEntityId());
-							documentRequest.setEntityType(updateDocumentListKeyDTO.getEntityType());
-							documentRequest.setDocumentKey(requestFileKey);
-							documentRequest.setFile(file);
-							documentRequest.setCreatedBy(getUserId().longValue());
-							documentRequest.setUpdatedBy(getUserId().longValue());
-							updateDocumentEntity(documentEntity, documentRequest);
-							savePDFLocal(documentEntity, documentRequest);
 						}
 					}
 					documentRepository.save(documentEntity);
@@ -547,7 +558,7 @@ public class DocumentServiceImpl implements DocumentService {
 				String requestFileKey = requestFileKeys[i];
 				if (!processedKeys.contains(requestFileKey)) {
 					if (files[i] != null) {
-
+						System.out.println("WHY AM I HERE");
 						MultipartFile file = files[i];
 						DocumentRequestDTO documentRequest = new DocumentRequestDTO();
 						documentRequest.setEntityType(updateDocumentListKeyDTO.getEntityType());
@@ -720,6 +731,7 @@ public class DocumentServiceImpl implements DocumentService {
 		documentEntity.setType(documentRequest.getType());
 		documentEntity.setTitle(documentRequest.getTitle());
 		documentEntity.setDescription(documentRequest.getDescription());
+		documentEntity.setDocumentName(documentRequest.getFile().getOriginalFilename());
 		if (documentRequest.getFile() != null) {
 			documentEntity.setDocumentName(documentRequest.getFile().getOriginalFilename());
 		}

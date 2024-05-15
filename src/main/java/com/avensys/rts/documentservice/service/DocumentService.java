@@ -84,6 +84,8 @@ public interface DocumentService {
 
 	DocumentDownloadResponseDTO downloadDocumentByEntity(String entityType, Integer entityId);
 
+	DocumentDownloadResponseDTO downloadDocumentByEntityAndKey(String entityType, Integer entityId, String fileKey);
+
 	void updateDocumentByKeysAndEntityTypeAndEntityId(UpdateDocumentListKeyDTO updateDocumentListKeyDTO);
 
 }
