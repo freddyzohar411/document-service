@@ -2,6 +2,7 @@ package com.avensys.rts.documentservice.controller;
 
 import java.util.List;
 
+import com.avensys.rts.documentservice.payloadrequest.UpdateDocumentListKeyDTO;
 import com.avensys.rts.documentservice.payloadresponse.DocumentDownloadResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -219,6 +220,13 @@ public class DocumentController {
 				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
 	}
 
-
+	// Update
+	@PostMapping("/update/list-with-keys")
+	public ResponseEntity<Object> updateDocumentListWithKeys(@ModelAttribute UpdateDocumentListKeyDTO updateDocumentListKeyDTO) {
+		log.info("Document update!!!: Controller");
+//		documentService.updateDocumentByKeysAndEntityTypeAndEntityId(updateDocumentListKeyDTO);
+		return ResponseUtil.generateSuccessResponse(null, HttpStatus.OK,
+				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
+	}
 
 }

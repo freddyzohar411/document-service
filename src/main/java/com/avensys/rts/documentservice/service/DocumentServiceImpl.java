@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.avensys.rts.documentservice.payloadrequest.*;
 import com.avensys.rts.documentservice.payloadresponse.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +19,6 @@ import com.avensys.rts.documentservice.APIClient.FormSubmissionAPIClient;
 import com.avensys.rts.documentservice.APIClient.UserAPIClient;
 import com.avensys.rts.documentservice.customresponse.HttpResponse;
 import com.avensys.rts.documentservice.entity.DocumentEntity;
-import com.avensys.rts.documentservice.payloadrequest.DocumentDeleteRequestDTO;
-import com.avensys.rts.documentservice.payloadrequest.DocumentRequestDTO;
-import com.avensys.rts.documentservice.payloadrequest.FormSubmissionsRequestDTO;
 import com.avensys.rts.documentservice.repository.DocumentRepository;
 import com.avensys.rts.documentservice.util.JwtUtil;
 import com.avensys.rts.documentservice.util.MappingUtil;
@@ -330,6 +328,139 @@ public class DocumentServiceImpl implements DocumentService {
 			return documentEntityToDocumentDownloadResponseDTO(documentEntity);
 		}
 		return null;
+	}
+
+//	@Override
+//	public void updateDocumentByKeysAndEntityTypeAndEntityId(UpdateDocumentListIKeyDTO updateDocumentListIKeyDTO) {
+//		List<DocumentEntity> documentEntityList = documentRepository.findByEntityTypeAndEntityId(
+//				updateDocumentListIKeyDTO.getEntityType(), updateDocumentListIKeyDTO.getEntityId());
+//
+//		if (!documentEntityList.isEmpty()) {
+//			if (updateDocumentListIKeyDTO.getDocumentKeyRequestDTO() == null || updateDocumentListIKeyDTO.getDocumentKeyRequestDTO().length == 0) {
+//				// Delete all documents
+//				documentEntityList.forEach(documentEntity -> {
+//					deletePDFLocal(documentEntity);
+//					// Delete form submission from form microservice
+//					if (documentEntity.getFormSubmissionId() != null) {
+//						HttpResponse formSubmissionResponse = formSubmissionAPIClient
+//								.deleteFormSubmission(documentEntity.getFormSubmissionId());
+//					}
+//					documentRepository.delete(documentEntity);
+//				});
+//			} else{
+//				// Delete those documents that are not in the updateDocumentListIKeyDTO
+//				documentEntityList.forEach(documentEntity -> {
+//					boolean found = false;
+//					for (int i = 0; i < updateDocumentListIKeyDTO.getDocumentKeyRequestDTO().length; i++) {
+//						if (documentEntity.getDocumentKey().equals(updateDocumentListIKeyDTO.getDocumentKeyRequestDTO()[i].getDocumentKey())) {
+//							found = true;
+//							break;
+//						}
+//					}
+//					if (!found) {
+//						deletePDFLocal(documentEntity);
+//						// Delete form submission from form microservice
+//						if (documentEntity.getFormSubmissionId() != null) {
+//							HttpResponse formSubmissionResponse = formSubmissionAPIClient
+//									.deleteFormSubmission(documentEntity.getFormSubmissionId());
+//						}
+//						documentRepository.delete(documentEntity);
+//					}
+//				});
+//
+//				// After deleting, update the rest that exist or create new if not exist in db
+//				for (int i = 0; i < updateDocumentListIKeyDTO.getDocumentKeyRequestDTO().length; i++) {
+//					boolean found = false;
+//					for (DocumentEntity documentEntity : documentEntityList) {
+//						if (documentEntity.getDocumentKey().equals(updateDocumentListIKeyDTO.getDocumentKeyRequestDTO()[i].getDocumentKey())) {
+//							found = true;
+//							break;
+//						}
+//					}
+//					if (!found) {
+//						DocumentEntity documentEntity = new DocumentEntity();
+//						documentEntity.setEntityType(updateDocumentListIKeyDTO.getEntityType());
+//						documentEntity.setEntityId(updateDocumentListIKeyDTO.getEntityId());
+//						documentEntity.setDocumentKey(updateDocumentListIKeyDTO.getDocumentKeyRequestDTO()[i].getDocumentKey());
+//						documentEntity.setCreatedBy(getUserId().longValue());
+//						documentEntity.setUpdatedBy(getUserId().longValue());
+//						DocumentEntity savedDocument = documentRepository.save(documentEntity);
+//					}
+//
+//					// If exist in both db and updateDocumentListIKeyDTO, update the document
+//					if (found) {
+//						DocumentEntity documentEntity = documentRepository.findByDocumentKeyAndEntityTypeAndEntityId(updateDocumentListIKeyDTO.getDocumentKeyRequestDTO()[i].getDocumentKey(), updateDocumentListIKeyDTO.getEntityType(), updateDocumentListIKeyDTO.getEntityId()).get();
+//						documentEntity.setUpdatedBy(getUserId().longValue());
+//						DocumentEntity savedDocument = documentRepository.save(documentEntity);
+//					}
+//				}
+//			}
+//		}
+//	}
+
+	@Override
+	public void updateDocumentByKeysAndEntityTypeAndEntityId(UpdateDocumentListKeyDTO updateDocumentListKeyDTO) {
+		// Retrieve the existing documents from the database
+		List<DocumentEntity> documentEntityList = documentRepository.findByEntityTypeAndEntityId(
+				updateDocumentListKeyDTO.getEntityType(), updateDocumentListKeyDTO.getEntityId());
+
+		// If no existing documents are found, initialize the list
+		if (documentEntityList == null) {
+			documentEntityList = new ArrayList<>();
+		}
+
+		// If the request array is empty, delete all existing documents
+		if (updateDocumentListKeyDTO.getDocumentKeyRequestDTO() == null || updateDocumentListKeyDTO.getDocumentKeyRequestDTO().length == 0) {
+			for (DocumentEntity documentEntity : documentEntityList) {
+				deletePDFLocal(documentEntity);
+				if (documentEntity.getFormSubmissionId() != null) {
+					formSubmissionAPIClient.deleteFormSubmission(documentEntity.getFormSubmissionId());
+				}
+				documentRepository.delete(documentEntity);
+			}
+			return;
+		}
+
+		// Create a set of document keys from the request
+		DocumentKeyRequestDTO[] requestDocumentKeyDTOs = updateDocumentListKeyDTO.getDocumentKeyRequestDTO();
+		Set<String> requestDocumentKeys = Arrays.stream(requestDocumentKeyDTOs)
+				.map(DocumentKeyRequestDTO::getDocumentKey)
+				.collect(Collectors.toSet());
+
+		// Process existing documents: delete or update
+		Set<String> processedKeys = new HashSet<>();
+		for (DocumentEntity documentEntity : documentEntityList) {
+			boolean found = false;
+			for (DocumentKeyRequestDTO requestDocumentKeyDTO : requestDocumentKeyDTOs) {
+				if (documentEntity.getDocumentKey().equals(requestDocumentKeyDTO.getDocumentKey())) {
+					found = true;
+					processedKeys.add(requestDocumentKeyDTO.getDocumentKey());
+					documentEntity.setUpdatedBy(getUserId().longValue());
+					documentRepository.save(documentEntity);
+					break;
+				}
+			}
+			if (!found) {
+				deletePDFLocal(documentEntity);
+				if (documentEntity.getFormSubmissionId() != null) {
+					formSubmissionAPIClient.deleteFormSubmission(documentEntity.getFormSubmissionId());
+				}
+				documentRepository.delete(documentEntity);
+			}
+		}
+
+		// Create new documents for request keys not already processed
+		for (DocumentKeyRequestDTO requestDocumentKeyDTO : requestDocumentKeyDTOs) {
+			if (!processedKeys.contains(requestDocumentKeyDTO.getDocumentKey())) {
+				DocumentEntity newDocumentEntity = new DocumentEntity();
+				newDocumentEntity.setEntityType(updateDocumentListKeyDTO.getEntityType());
+				newDocumentEntity.setEntityId(updateDocumentListKeyDTO.getEntityId());
+				newDocumentEntity.setDocumentKey(requestDocumentKeyDTO.getDocumentKey());
+				newDocumentEntity.setCreatedBy(getUserId().longValue());
+				newDocumentEntity.setUpdatedBy(getUserId().longValue());
+				documentRepository.save(newDocumentEntity);
+			}
+		}
 	}
 
 	private DocumentDownloadResponseDTO documentEntityToDocumentDownloadResponseDTO(DocumentEntity documentEntity) {
