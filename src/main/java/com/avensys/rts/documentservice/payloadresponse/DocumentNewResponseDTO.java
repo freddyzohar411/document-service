@@ -17,4 +17,6 @@ public class DocumentNewResponseDTO {
     private Integer formId;
     private String submissionData;
     private Integer formSubmissionId;
+    private String documentKey;
+
 }

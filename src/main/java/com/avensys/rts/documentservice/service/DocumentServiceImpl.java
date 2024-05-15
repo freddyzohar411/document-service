@@ -449,6 +449,9 @@ public class DocumentServiceImpl implements DocumentService {
 		documentEntity.setDescription(documentRequest.getDescription());
 		documentEntity.setEntityId(documentRequest.getEntityId());
 		documentEntity.setEntityType(documentRequest.getEntityType());
+		if (documentRequest.getDocumentKey() != null) {
+			documentEntity.setDocumentKey(documentRequest.getDocumentKey());
+		}
 		if (documentRequest.getFormId() != null) {
 			documentEntity.setFormId(documentRequest.getFormId());
 		}
@@ -470,6 +473,7 @@ public class DocumentServiceImpl implements DocumentService {
 		documentResponseDTO.setDescription(documentEntity.getDescription());
 		documentResponseDTO.setEntityId(documentEntity.getEntityId());
 		documentResponseDTO.setEntityType(documentEntity.getEntityType());
+		documentResponseDTO.setDocumentKey(documentEntity.getDocumentKey());
 		return documentResponseDTO;
 	}
 
@@ -488,6 +492,9 @@ public class DocumentServiceImpl implements DocumentService {
 		}
 		documentEntity.setEntityId(documentRequest.getEntityId());
 		documentEntity.setEntityType(documentRequest.getEntityType());
+		if (documentRequest.getDocumentKey() != null) {
+			documentEntity.setDocumentKey(documentRequest.getDocumentKey());
+		}
 	}
 
 	private Integer getUserId() {

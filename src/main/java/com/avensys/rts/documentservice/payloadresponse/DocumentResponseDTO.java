@@ -19,4 +19,6 @@ public class DocumentResponseDTO {
     private String description;
     private Integer entityId;
     private String entityType;
+    private String documentKey;
+
 }

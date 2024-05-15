@@ -22,6 +22,7 @@ public class DocumentRequestDTO {
 	private String description;
 	private Long createdBy;
 	private Long updatedBy;
+	private String documentKey;
 
 	@NotNull
 	private Integer entityId;

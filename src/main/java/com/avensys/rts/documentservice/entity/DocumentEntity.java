@@ -51,4 +51,7 @@ public class DocumentEntity extends BaseEntity {
 	@Column(name = "form_submission_id")
 	private Integer formSubmissionId;
 
+	@Column(name = "document_key")
+	private String documentKey;
+
 }
