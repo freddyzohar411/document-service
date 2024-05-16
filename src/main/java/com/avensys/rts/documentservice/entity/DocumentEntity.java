@@ -7,8 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /***
  * @author Koh He Xiang This is the entity class for the currency table in the
@@ -16,7 +17,8 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name = "document")
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class DocumentEntity extends BaseEntity {

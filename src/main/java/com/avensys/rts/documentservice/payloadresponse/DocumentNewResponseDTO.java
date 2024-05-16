@@ -1,12 +1,12 @@
 package com.avensys.rts.documentservice.payloadresponse;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
-
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class DocumentNewResponseDTO {
@@ -18,5 +18,4 @@ public class DocumentNewResponseDTO {
     private String submissionData;
     private Integer formSubmissionId;
     private String documentKey;
-
 }

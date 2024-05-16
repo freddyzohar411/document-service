@@ -1,14 +1,16 @@
 package com.avensys.rts.documentservice.payloadresponse;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
- * author: Koh He Xiang
- * This is the DTO class for a response for a retrieved document
+ * author: Koh He Xiang This is the DTO class for a response for a retrieved
+ * document
  */
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class DocumentResponseDTO {
@@ -20,5 +22,4 @@ public class DocumentResponseDTO {
     private Integer entityId;
     private String entityType;
     private String documentKey;
-
 }
