@@ -19,4 +19,6 @@ public interface DocumentRepository extends JpaRepository<DocumentEntity, Intege
 	List<DocumentEntity> findByCreatedByAndEntityTypeAndEntityId(Long createdBy, String entityType, int entityId);
 
 	Optional<DocumentEntity> findOneByEntityTypeAndEntityId(String entityType, int entityId);
+
+	Optional<DocumentEntity> findOneByEntityTypeAndEntityIdAndDocumentKey(String entityType, int entityId, String documentKey);
 }

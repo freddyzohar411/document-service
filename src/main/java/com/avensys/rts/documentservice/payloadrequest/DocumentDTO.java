@@ -19,9 +19,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DocumentDTO {
-	private String type;
-	private String title;
-	private String description;
+    private String type;
+    private String title;
+    private String description;
+    private String documentKey;
 
 	@NotNull(message = "File cannot be null")
 	@ValidPdfFile(message = "File must be a PDF file")

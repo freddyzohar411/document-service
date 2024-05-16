@@ -14,11 +14,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DocumentResponseDTO {
-	private Integer id;
-	private String type;
-	private String title;
-	private String documentName;
-	private String description;
-	private Integer entityId;
-	private String entityType;
+    private Integer id;
+    private String type;
+    private String title;
+    private String documentName;
+    private String description;
+    private Integer entityId;
+    private String entityType;
+    private String documentKey;
 }

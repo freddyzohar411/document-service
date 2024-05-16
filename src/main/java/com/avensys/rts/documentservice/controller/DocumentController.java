@@ -2,6 +2,7 @@ package com.avensys.rts.documentservice.controller;
 
 import java.util.List;
 
+import com.avensys.rts.documentservice.payloadrequest.UpdateDocumentListKeyDTO;
 import com.avensys.rts.documentservice.payloadresponse.DocumentDownloadResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -210,6 +211,16 @@ public class DocumentController {
 				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
 	}
 
+	// Download file by entity type and entity id and Key
+	@GetMapping("/download/entity/{entityType}/{entityId}/{documentKey}")
+	public ResponseEntity<Object> downloadDocumentByEntityTypeAndEntityIdAndKey(@PathVariable String entityType, @PathVariable Integer entityId, @PathVariable String documentKey) {
+		log.info("Document download: Controller");
+		DocumentDownloadResponseDTO documentDownloadResponseDTO = documentService.downloadDocumentByEntityAndKey(entityType, entityId, documentKey);
+		return ResponseUtil.generateSuccessResponse(documentDownloadResponseDTO, HttpStatus.OK,
+				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
+	}
+
+
 	// Download file by id
 	@GetMapping("/download/{documentId}")
 	public ResponseEntity<Object> downloadDocumentById(@PathVariable Integer documentId) {
@@ -219,6 +230,13 @@ public class DocumentController {
 				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
 	}
 
-
+	// Update
+	@PostMapping("/update/list-with-keys")
+	public ResponseEntity<Object> updateDocumentListWithKeys(@ModelAttribute UpdateDocumentListKeyDTO updateDocumentListKeyDTO) {
+		log.info("Document update!!!: Controller");
+		documentService.updateDocumentByKeysAndEntityTypeAndEntityId(updateDocumentListKeyDTO);
+		return ResponseUtil.generateSuccessResponse(null, HttpStatus.OK,
+				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
+	}
 
 }
